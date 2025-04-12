@@ -9,6 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Konumunuzu almak istiyoruz",
+        "NSLocationAlwaysUsageDescription": "Konumunuzu almak istiyoruz"
+      },
       "supportsTablet": true
     },
     "android": {
