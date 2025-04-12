@@ -7,7 +7,15 @@ export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [weatherData, setWeatherData] = useState<any>(null);  // Hava durumu verisini saklamak için
-
+  function formatUnixTime(unixTimestamp: number): string {
+    const date = new Date(unixTimestamp * 1000); // saniyeden milisaniyeye çevir
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+  
+    // Saat ve dakikayı iki basamaklı formatla döndür (örn: "09:05")
+    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    return formattedTime;
+  }
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -36,15 +44,17 @@ export default function HomeScreen() {
           const response = await fetch(apiEndpoint);
           const data = await response.json();
           const weatherMapList = helper.weathers;
+          data.list[0].dt = formatUnixTime(data.list[0].dt);
           weatherMapList.forEach(wt => {
+            
             if(data.list[0].weather[0].description == wt.responseField.toString())
             {
               data!.list[0].weather[0].description = wt.fieldTranslate;
             }
           });
-          setWeatherData(data);  // Weather data'yı güncelle
+          setWeatherData(data);
         } catch (error) {
-          console.error("API Hatası:", error);  // Hata durumunu logla
+          console.error("API Hatasi:", error);
         }
       })();
     }
@@ -57,13 +67,17 @@ export default function HomeScreen() {
       ) : location ? (
         <>
           {weatherData && weatherData.list && weatherData.list.length > 0 ? (
-            <Text style={styles.text}>Hava Durumu: {weatherData.list[0].weather[0].description}</Text>
+            <>
+              <Text style={styles.text}>Konum: {weatherData.city.name}</Text>
+              <Text style={styles.text}>Saat: {weatherData.list[0].dt}</Text>
+              <Text style={styles.text}>Hava Durumu: {weatherData.list[0].weather[0].description}</Text>
+            </>
           ) : (
             <Text style={styles.text}>Hava durumu verisi alınamıyor...</Text>
           )}
         </>
       ) : (
-        <Text>Konum alınıyor...</Text>
+        <Text>Konum aliniyor...</Text>
       )}
     </View>
   );
